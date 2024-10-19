@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 // Footer Component
 const Footer: React.FC = () => {
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false); // Optional: For handling form submissions if needed
+  
 
   // Function to toggle the Privacy Policy modal
   const togglePrivacyModal = () => {
