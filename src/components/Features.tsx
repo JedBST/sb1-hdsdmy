@@ -43,20 +43,30 @@ const features = [
 ];
 
 const FeatureCard = ({ icon: Icon, title, description, details, index }) => {
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+
   const cardVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
+      y: 0,
       transition: {
         duration: 0.6,
         ease: 'easeInOut',
+        delay: index * 0.2,
       },
     },
   };
 
   return (
     <motion.div
+      ref={ref}
       variants={cardVariants}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
       className="bg-[#2D2D2D] p-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer overflow-hidden relative group"
     >
       <motion.div
@@ -82,21 +92,15 @@ const FeatureCard = ({ icon: Icon, title, description, details, index }) => {
 };
 
 const Features = () => {
-  const controls = useAnimation();
   const [ref, inView] = useInView({
     threshold: 0.1,
     triggerOnce: true,
   });
 
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
-
   const containerVariants = {
-    hidden: {},
+    hidden: { opacity: 0 },
     visible: {
+      opacity: 1,
       transition: {
         staggerChildren: 0.2,
       },
@@ -104,24 +108,24 @@ const Features = () => {
   };
 
   const titleVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0, y: -20 },
     visible: {
       opacity: 1,
+      y: 0,
       transition: {
-        duration: 0.8,
+        duration: 0.6,
         ease: 'easeInOut',
       },
     },
   };
 
   return (
-    <section id="features" className="py-20 bg-[#1E1E1E]">
+    <section ref={ref} id="features" className="py-20 bg-[#1E1E1E]">
       <div className="container mx-auto px-4">
         <motion.h2
-          ref={ref}
-          initial="hidden"
-          animate={controls}
           variants={titleVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
           className="text-4xl font-bold text-center mb-12"
         >
           Key Features
@@ -129,7 +133,7 @@ const Features = () => {
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate={controls}
+          animate={inView ? "visible" : "hidden"}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {features.map((feature, index) => (

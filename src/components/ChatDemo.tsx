@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { User, Bot, FileSearch, Brain, Users, Globe } from 'lucide-react';
+
 
 const ChatDemo: React.FC = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean; icon?: React.ElementType }[]>([]);
@@ -28,16 +30,44 @@ const ChatDemo: React.FC = () => {
     }
   }, [currentIndex]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const messageVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
     <section id="demo" className="py-20 bg-gradient-to-b from-[#1E1E1E] to-[#2D2D2D]">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-12">Experience EVE in Action</h2>
-        <div className="max-w-3xl mx-auto bg-[#2D2D2D] rounded-lg shadow-2xl p-6 h-[600px] overflow-y-auto border border-[#007B7F]">
+        <motion.div 
+          className="max-w-3xl mx-auto bg-[#2D2D2D] rounded-lg shadow-2xl p-6 h-[600px] overflow-y-auto border border-[#007B7F]"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {messages.map((message, index) => (
-            <div
+            <motion.div
               key={index}
-              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4 opacity-0 animate-fadeIn`}
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}
+              variants={messageVariants}
             >
               <div className={`flex items-start ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                 <div className={`rounded-full p-2 ${message.isUser ? 'bg-[#007B7F]' : 'bg-gray-700'} ${message.isUser ? 'ml-2' : 'mr-2'} shadow-lg`}>
@@ -51,9 +81,9 @@ const ChatDemo: React.FC = () => {
                   <p className="text-sm md:text-base">{message.text}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
