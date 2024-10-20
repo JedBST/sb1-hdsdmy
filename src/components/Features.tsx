@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FileSearch, Brain, Users, Globe, Lock, Zap } from 'lucide-react';
 
@@ -43,6 +43,7 @@ const features = [
 ];
 
 const FeatureCard = ({ icon: Icon, title, description, details, index }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
   const [ref, inView] = useInView({
     threshold: 0.1,
     triggerOnce: true,
@@ -61,6 +62,10 @@ const FeatureCard = ({ icon: Icon, title, description, details, index }) => {
     },
   };
 
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
   return (
     <motion.div
       ref={ref}
@@ -68,10 +73,13 @@ const FeatureCard = ({ icon: Icon, title, description, details, index }) => {
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       className="bg-[#2D2D2D] p-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer overflow-hidden relative group"
+      onClick={handleFlip}
+      onMouseEnter={() => setIsFlipped(true)}
+      onMouseLeave={() => setIsFlipped(false)}
     >
       <motion.div
         initial={{ opacity: 1 }}
-        whileHover={{ opacity: 0 }}
+        animate={{ opacity: isFlipped ? 0 : 1 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
         <Icon className="text-[#007B7F] mb-4" size={40} />
@@ -81,7 +89,7 @@ const FeatureCard = ({ icon: Icon, title, description, details, index }) => {
       <motion.div
         className="absolute inset-0 bg-[#007B7F] p-6 flex flex-col justify-center items-center"
         initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
+        animate={{ opacity: isFlipped ? 1 : 0 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
         <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
