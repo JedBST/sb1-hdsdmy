@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import { FileSearch, Brain, Users, Globe, Lock, Zap } from 'lucide-react';
 
 const features = [
@@ -40,47 +42,100 @@ const features = [
   },
 ];
 
-const FeatureCard: React.FC<{
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  details: string;
-}> = ({ icon: Icon, title, description, details }) => {
-  const [isHovered, setIsHovered] = useState(false);
+const FeatureCard = ({ icon: Icon, title, description, details, index }) => {
+  const cardVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: 'easeInOut',
+      },
+    },
+  };
 
   return (
-    <div
+    <motion.div
+      variants={cardVariants}
       className="bg-[#2D2D2D] p-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer overflow-hidden relative group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={`transition-all duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
+      <motion.div
+        initial={{ opacity: 1 }}
+        whileHover={{ opacity: 0 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+      >
         <Icon className="text-[#007B7F] mb-4" size={40} />
         <h3 className="text-xl font-semibold mb-2">{title}</h3>
         <p>{description}</p>
-      </div>
-      <div
-        className={`absolute inset-0 bg-[#007B7F] p-6 flex flex-col justify-center items-center transition-all duration-300 ${
-          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+      </motion.div>
+      <motion.div
+        className="absolute inset-0 bg-[#007B7F] p-6 flex flex-col justify-center items-center"
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
         <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
         <p className="text-white text-center">{details}</p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
-const Features: React.FC = () => {
+const Features = () => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible");
+    }
+  }, [controls, inView]);
+
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const titleVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: 'easeInOut',
+      },
+    },
+  };
+
   return (
     <section id="features" className="py-20 bg-[#1E1E1E]">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center mb-12">Key Features</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.h2
+          ref={ref}
+          initial="hidden"
+          animate={controls}
+          variants={titleVariants}
+          className="text-4xl font-bold text-center mb-12"
+        >
+          Key Features
+        </motion.h2>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={controls}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {features.map((feature, index) => (
-            <FeatureCard key={index} {...feature} />
+            <FeatureCard key={index} {...feature} index={index} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
