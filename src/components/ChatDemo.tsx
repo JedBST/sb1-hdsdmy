@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import { User, Bot, FileSearch, Brain, Users, Globe } from 'lucide-react';
 
+interface Message {
+  text: string;
+  isUser: boolean;
+  icon?: React.ElementType;
+}
 
 const ChatDemo: React.FC = () => {
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean; icon?: React.ElementType }[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [ref, inView] = useInView({
+    threshold: 0.3,
+    triggerOnce: true,
+  });
 
   const conversation = [
     { text: "Hi EVE, I'm preparing for a client meeting. Can you help me analyze their current situation?", isUser: true },
@@ -21,14 +31,14 @@ const ChatDemo: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (currentIndex < conversation.length) {
+    if (inView && currentIndex < conversation.length) {
       const timer = setTimeout(() => {
         setMessages(prev => [...prev, conversation[currentIndex]]);
         setCurrentIndex(prev => prev + 1);
-      }, 2000); // Adjust timing as needed
+      }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [currentIndex]);
+  }, [currentIndex, inView]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -54,14 +64,14 @@ const ChatDemo: React.FC = () => {
   };
 
   return (
-    <section id="demo" className="py-20 bg-gradient-to-b from-[#1E1E1E] to-[#2D2D2D]">
+    <section ref={ref} id="demo" className="py-20 bg-gradient-to-b from-[#1E1E1E] to-[#2D2D2D]">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-center mb-12">Experience EVE in Action</h2>
         <motion.div 
           className="max-w-3xl mx-auto bg-[#2D2D2D] rounded-lg shadow-2xl p-6 h-[600px] overflow-y-auto border border-[#007B7F]"
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          animate={inView ? "visible" : "hidden"}
         >
           {messages.map((message, index) => (
             <motion.div
